@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "958196033224",
+    "project_id": "chatdesktop-fcbd1",
+    "storage_bucket": "chatdesktop-fcbd1.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:958196033224:android:d75a014877ee546a88e7fd",
+        "android_client_info": {
+          "package_name": "com.example.flutter_application_5"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "958196033224-bdoocbhdfj7ern83laj30ce1pdb1u3bl.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.flutter_application_5",
+            "certificate_hash": "8adbf9b61799291803daeead352a724cc68311d1"
+          }
+        },
+        {
+          "client_id": "958196033224-l3mhpmbmdig5n4n7rgmrhut72ed79tht.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAzy_iWM7YiQvQNhxyJZLQ4lpWnmx1Rg84"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "958196033224-l3mhpmbmdig5n4n7rgmrhut72ed79tht.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
