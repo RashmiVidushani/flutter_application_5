@@ -49,14 +49,12 @@ class CameraView extends StatelessWidget {
         child: Stack(
           children: [
             Container(
-              width: MediaQuery.of(context).size.width,
-              height: MediaQuery.of(context).size.height - 150,
-              /* child: Image.file(
+                width: MediaQuery.of(context).size.width,
+                height: MediaQuery.of(context).size.height - 150,
+                child: Image.file(
                   File(path),
                   fit: BoxFit.cover,
-                )
-                */
-            ),
+                )),
             Positioned(
                 bottom: 0,
                 child: Container(

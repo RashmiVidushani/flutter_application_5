@@ -1,5 +1,4 @@
 import 'dart:io';
-
 import 'package:emoji_picker_2/emoji_picker_2.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter_application_5/Dones/camarascreen.dart';
@@ -9,6 +8,8 @@ import 'package:flutter_application_5/Modals/chat_messages.dart';
 import 'package:flutter_application_5/Providers/chat_provider.dart';
 import 'package:flutter_application_5/Providers/googleauth.dart';
 import 'package:flutter_application_5/Providers/profile_provider.dart';
+import 'package:flutter_application_5/Screens/filedoc.dart';
+import 'package:flutter_application_5/Screens/scanner.dart';
 import 'package:flutter_application_5/widgets/common_widgets.dart';
 import 'package:flutter_application_5/widgets/size_constants.dart';
 import 'package:flutter_application_5/widgets/text_field_constants.dart';
@@ -42,13 +43,14 @@ class ChatPage extends StatefulWidget {
 
 class _ChatPageState extends State<ChatPage> {
   late String currentUserId;
-
+  bool show = false;
   List<QueryDocumentSnapshot> listMessages = [];
   int popTime = 0;
   int _limit = 20;
   final int _limitIncrement = 20;
   String groupChatId = '';
-
+  ImagePicker _picker = ImagePicker();
+  XFile? file;
   File? imageFile;
   bool isLoading = false;
   bool isShowSticker = false;
@@ -66,7 +68,13 @@ class _ChatPageState extends State<ChatPage> {
     super.initState();
     chatProvider = context.read<ChatProvider>();
     authProvider = context.read<AuthProvider>();
-
+    focusNode.addListener(() {
+      if (focusNode.hasFocus) {
+        setState(() {
+          show = false;
+        });
+      }
+    });
     focusNode.addListener(onFocusChanged);
     scrollController.addListener(_scrollListener);
     readLocal();
@@ -207,84 +215,121 @@ class _ChatPageState extends State<ChatPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        centerTitle: true,
-        title: Text('Chatting with ${widget.peerNickname}'.trim()),
-        actions: [
-          IconButton(
-            onPressed: () {
-              ProfileProvider profileProvider;
-              profileProvider = context.read<ProfileProvider>();
-              String callPhoneNumber =
-                  profileProvider.getPrefs(FirestoreConstants.phoneNumber) ??
-                      "";
-              _callPhoneNumber(callPhoneNumber);
-            },
-            icon: const Icon(Icons.phone),
-          ),
-        ],
-      ),
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: Sizes.dimen_8),
-          child: Column(
-            children: [
-              buildListMessage(),
-              buildMessageInput(),
-            ],
-          ),
+        appBar: AppBar(
+          title: Text('${widget.peerNickname}'.trim()),
+          actions: [
+            IconButton(
+              onPressed: () {
+                ProfileProvider profileProvider;
+                profileProvider = context.read<ProfileProvider>();
+                String callPhoneNumber =
+                    profileProvider.getPrefs(FirestoreConstants.phoneNumber) ??
+                        "";
+                _callPhoneNumber(callPhoneNumber);
+              },
+              icon: const Icon(Icons.phone),
+            ),
+          ],
         ),
-      ),
-    );
+        body: Stack(
+          children: [
+            Image.asset("assets/backimage.jpg",
+                height: MediaQuery.of(context).size.height,
+                width: MediaQuery.of(context).size.width,
+                fit: BoxFit.cover),
+            SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: Sizes.dimen_8),
+                child: Column(
+                  children: [
+                    buildListMessage(),
+                    buildMessageInput(),
+                    SizedBox(
+                      height: 5,
+                    ),
+                    show ? emojiSelect() : Container()
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ));
   }
 
   Widget buildMessageInput() {
     return SizedBox(
       width: double.infinity,
       height: 50,
-      child: Row(
+      child: Column(
         children: [
-          Container(
-            margin: const EdgeInsets.only(right: Sizes.dimen_4),
-            decoration: BoxDecoration(
-              color: Colors.amber,
-              borderRadius: BorderRadius.circular(Sizes.dimen_30),
-            ),
-            child: IconButton(
-              onPressed: getImage,
-              icon: const Icon(
-                Icons.camera_alt,
-                size: Sizes.dimen_28,
+          Row(
+            children: [
+              Flexible(
+                  child: TextField(
+                focusNode: focusNode,
+                textInputAction: TextInputAction.send,
+                keyboardType: TextInputType.text,
+                textCapitalization: TextCapitalization.sentences,
+                controller: textEditingController,
+                decoration: InputDecoration(
+                    prefixIcon: IconButton(
+                      icon: Icon(Icons.emoji_emotions),
+                      onPressed: () {
+                        focusNode.unfocus();
+                        focusNode.canRequestFocus = false;
+                        setState(() {
+                          show = !show;
+                        });
+                      },
+                    ),
+                    suffixIcon: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                            onPressed: () {
+                              showModalBottomSheet(
+                                  backgroundColor: Colors.transparent,
+                                  context: context,
+                                  builder: (builder) => bottomsheet());
+                            },
+                            icon: Icon(Icons.attach_file)),
+                        IconButton(
+                            onPressed: () {
+                              setState(() {
+                                popTime = 2;
+                              });
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (builder) => CamaraScreen(
+                                          // onImageSend:onImageSend
+                                          )));
+                            },
+                            icon: Icon(Icons.camera_alt))
+                      ],
+                    ),
+                    filled: true, //<-- SEE HERE
+                    fillColor: Color.fromARGB(255, 116, 223, 212),
+                    hintText: 'Enter your message here'),
+                onSubmitted: (value) {
+                  onSendMessage(textEditingController.text, MessageType.text);
+                },
+              )),
+              Container(
+                margin: const EdgeInsets.only(left: Sizes.dimen_4),
+                decoration: BoxDecoration(
+                  color: Colors.teal,
+                  borderRadius: BorderRadius.circular(Sizes.dimen_30),
+                ),
+                child: IconButton(
+                  onPressed: () {
+                    onSendMessage(textEditingController.text, MessageType.text);
+                  },
+                  icon: const Icon(Icons.send_rounded),
+                  color: Color.fromARGB(255, 7, 7, 7),
+                ),
               ),
-              color: Colors.white,
-            ),
-          ),
-          Flexible(
-              child: TextField(
-            focusNode: focusNode,
-            textInputAction: TextInputAction.send,
-            keyboardType: TextInputType.text,
-            textCapitalization: TextCapitalization.sentences,
-            controller: textEditingController,
-            decoration:
-                kTextInputDecoration.copyWith(hintText: 'write here...'),
-            onSubmitted: (value) {
-              onSendMessage(textEditingController.text, MessageType.text);
-            },
-          )),
-          Container(
-            margin: const EdgeInsets.only(left: Sizes.dimen_4),
-            decoration: BoxDecoration(
-              color: Colors.amber,
-              borderRadius: BorderRadius.circular(Sizes.dimen_30),
-            ),
-            child: IconButton(
-              onPressed: () {
-                onSendMessage(textEditingController.text, MessageType.text);
-              },
-              icon: const Icon(Icons.send_rounded),
-              color: Colors.white,
-            ),
+            ],
           ),
         ],
       ),
@@ -305,8 +350,8 @@ class _ChatPageState extends State<ChatPage> {
                 chatMessages.type == MessageType.text
                     ? messageBubble(
                         chatContent: chatMessages.content,
-                        color: Colors.amber,
-                        textColor: Colors.white,
+                        color: Color.fromARGB(255, 143, 230, 221),
+                        textColor: Color.fromARGB(255, 7, 7, 7),
                         margin: const EdgeInsets.only(right: Sizes.dimen_10),
                       )
                     : chatMessages.type == MessageType.image
@@ -333,7 +378,7 @@ class _ChatPageState extends State<ChatPage> {
                             if (loadingProgress == null) return child;
                             return Center(
                               child: CircularProgressIndicator(
-                                color: Colors.amber,
+                                color: Color.fromARGB(255, 240, 229, 196),
                                 value: loadingProgress.expectedTotalBytes !=
                                             null &&
                                         loadingProgress.expectedTotalBytes !=
@@ -348,7 +393,7 @@ class _ChatPageState extends State<ChatPage> {
                             return const Icon(
                               Icons.account_circle,
                               size: 35,
-                              color: Colors.blueGrey,
+                              color: Color.fromARGB(255, 183, 229, 252),
                             );
                           },
                         ),
@@ -371,7 +416,7 @@ class _ChatPageState extends State<ChatPage> {
                         ),
                       ),
                       style: const TextStyle(
-                          color: Colors.blueGrey,
+                          color: Color.fromARGB(255, 186, 213, 226),
                           fontSize: Sizes.dimen_12,
                           fontStyle: FontStyle.italic),
                     ),
@@ -403,7 +448,7 @@ class _ChatPageState extends State<ChatPage> {
                             if (loadingProgress == null) return child;
                             return Center(
                               child: CircularProgressIndicator(
-                                color: Colors.amber,
+                                color: Color.fromARGB(255, 240, 226, 183),
                                 value: loadingProgress.expectedTotalBytes !=
                                             null &&
                                         loadingProgress.expectedTotalBytes !=
@@ -428,8 +473,8 @@ class _ChatPageState extends State<ChatPage> {
                       ),
                 chatMessages.type == MessageType.text
                     ? messageBubble(
-                        color: Colors.amber,
-                        textColor: Colors.white,
+                        color: Color.fromARGB(255, 238, 232, 214),
+                        textColor: Color.fromARGB(255, 51, 51, 51),
                         chatContent: chatMessages.content,
                         margin: const EdgeInsets.only(left: Sizes.dimen_10),
                       )
@@ -456,7 +501,7 @@ class _ChatPageState extends State<ChatPage> {
                         ),
                       ),
                       style: const TextStyle(
-                          color: Colors.amber,
+                          color: Color.fromARGB(255, 226, 226, 200),
                           fontSize: Sizes.dimen_12,
                           fontStyle: FontStyle.italic),
                     ),
@@ -472,7 +517,7 @@ class _ChatPageState extends State<ChatPage> {
 
   Widget bottomsheet() {
     return Container(
-      height: 270,
+      height: 170,
       width: MediaQuery.of(context).size.width,
       child: Card(
           margin: EdgeInsets.all(16),
@@ -482,21 +527,19 @@ class _ChatPageState extends State<ChatPage> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  iconCreation(Icons.insert_drive_file, Colors.indigo,
-                      "Document ", () {}),
+                  iconCreation(
+                      Icons.insert_drive_file, Colors.indigo, "Document", () {
+                    Navigator.push(context,
+                        MaterialPageRoute(builder: (builder) => FileDoc()));
+                  }),
                   SizedBox(
                     width: 40,
                   ),
-                  iconCreation(Icons.camera, Colors.pink, "Camera ", () {
-                    setState(() {
-                      popTime = 3;
-                    });
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (builder) => CamaraScreen(
-                                // onImageSend: onImageSend,
-                                )));
+                  iconCreation(
+                      Icons.scanner, Color.fromARGB(255, 255, 65, 59), "Scan",
+                      () {
+                    Navigator.push(context,
+                        MaterialPageRoute(builder: (builder) => Scanner()));
                   }),
                   SizedBox(
                     width: 40,
@@ -506,35 +549,17 @@ class _ChatPageState extends State<ChatPage> {
                     setState(() {
                       popTime = 2;
                     });
-                    //file = await _picker.pickImage(source: ImageSource.gallery);
-                    /*Navigator.push(
+                    file = await _picker.pickImage(source: ImageSource.gallery);
+                    Navigator.push(
                         context,
                         MaterialPageRoute(
                             builder: (builder) => CameraView(
-                                //path: file!.path,
-                                // onImageSend: onImageSend,
-                                )));*/
+                                  path: file!.path,
+                                  onImageSend: uploadImageFile,
+                                )));
                   }),
                 ],
               ),
-              SizedBox(
-                height: 30,
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  iconCreation(Icons.headset, Colors.orange, "Audio ", () {}),
-                  SizedBox(
-                    width: 40,
-                  ),
-                  iconCreation(
-                      Icons.location_pin, Colors.yellow, "Location", () {}),
-                  SizedBox(
-                    width: 40,
-                  ),
-                  iconCreation(Icons.person, Colors.blue, "Contact", () {}),
-                ],
-              )
             ]),
           )),
     );

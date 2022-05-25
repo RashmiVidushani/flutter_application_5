@@ -6,11 +6,11 @@ const kTextInputDecoration = InputDecoration(
     color: Colors.amber,
   ),
   enabledBorder: OutlineInputBorder(
-    borderSide: BorderSide(color: Colors.amber, width: 1.5),
+    borderSide: BorderSide(color: Colors.teal, width: 1.5),
     borderRadius: BorderRadius.all(Radius.circular(Sizes.dimen_10)),
   ),
   focusedBorder: OutlineInputBorder(
-    borderSide: BorderSide(color: Colors.amber, width: 1.5),
+    borderSide: BorderSide(color: Color.fromARGB(255, 0, 218, 167), width: 1.5),
     borderRadius: BorderRadius.all(Radius.circular(Sizes.dimen_10)),
   ),
   errorBorder: OutlineInputBorder(

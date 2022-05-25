@@ -32,7 +32,7 @@ Widget chatImage({required String imageSrc, required Function onTap}) {
           height: Sizes.dimen_200,
           child: Center(
             child: CircularProgressIndicator(
-              color: Colors.amber,
+              color: Color.fromARGB(255, 156, 148, 123),
               value: loadingProgress.expectedTotalBytes != null &&
                       loadingProgress.expectedTotalBytes != null
                   ? loadingProgress.cumulativeBytesLoaded /

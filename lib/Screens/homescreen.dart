@@ -145,12 +145,6 @@ class _HomeScreenState extends State<HomeScreen>
             IconButton(
                 onPressed: () => googleSignOut(),
                 icon: const Icon(Icons.logout)),
-            IconButton(
-                onPressed: () {
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => Profile()));
-                },
-                icon: const Icon(Icons.person)),
           ],
           bottom: TabBar(
             controller: _controller,
@@ -176,12 +170,8 @@ class _HomeScreenState extends State<HomeScreen>
           child: TabBarView(controller: _controller, children: [
             CamaraPage(),
             Home(),
-            /*ChatPage(
-          chats: widget.chats,
-          sourceChat: widget.sourceChat,
-        ),*/
             MianChatScreen(),
-            Test(),
+            Profile(),
           ]),
         ));
   }
