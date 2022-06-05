@@ -2,8 +2,8 @@ import 'dart:math';
 
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_application_5/Dones/cameraview.dart';
-import 'package:flutter_application_5/Dones/videoview.dart';
+import 'package:flutter_application_5/Components/Camera&Video/cameraview.dart';
+import 'package:flutter_application_5/Components/Camera&Video/videoview.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 

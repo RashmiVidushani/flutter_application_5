@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_application_5/Dones/camarascreen.dart';
+import 'package:flutter_application_5/Components/Camera&Video/camarascreen.dart';
 
 class CamaraPage extends StatelessWidget {
   const CamaraPage({Key? key}) : super(key: key);

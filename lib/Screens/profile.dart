@@ -295,7 +295,7 @@ class _ProfileState extends State<Profile> {
                             dialCodeDigits = country.dialCode!;
                           });
                         },
-                        initialSelection: 'IN',
+                        initialSelection: 'SO',
                         showCountryOnly: false,
                         showOnlyCountryWhenClosed: false,
                         favorite: const ["+1", "US", "+91", "IN"],

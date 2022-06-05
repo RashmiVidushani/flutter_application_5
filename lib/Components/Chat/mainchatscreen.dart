@@ -6,7 +6,7 @@ import 'package:flutter_application_5/Login/mainlogin.dart';
 import 'package:flutter_application_5/Modals/chat_user.dart';
 import 'package:flutter_application_5/Providers/googleauth.dart';
 import 'package:flutter_application_5/Providers/home_provider.dart';
-import 'package:flutter_application_5/Screens/chatpage.dart';
+import 'package:flutter_application_5/Components/Chat/chatpage.dart';
 import 'package:flutter_application_5/utils/keyboard_utils.dart';
 import 'package:flutter_application_5/widgets/size_constants.dart';
 import 'package:google_sign_in/google_sign_in.dart';

@@ -25,14 +25,14 @@ Widget chatImage({required String imageSrc, required Function onTap}) {
         if (loadingProgress == null) return child;
         return Container(
           decoration: BoxDecoration(
-            color: Colors.blueGrey,
+            color: Colors.grey,
             borderRadius: BorderRadius.circular(Sizes.dimen_10),
           ),
           width: Sizes.dimen_200,
           height: Sizes.dimen_200,
           child: Center(
             child: CircularProgressIndicator(
-              color: Color.fromARGB(255, 156, 148, 123),
+              color: Colors.amber,
               value: loadingProgress.expectedTotalBytes != null &&
                       loadingProgress.expectedTotalBytes != null
                   ? loadingProgress.cumulativeBytesLoaded /

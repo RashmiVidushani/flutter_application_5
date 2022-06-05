@@ -1,27 +1,29 @@
 import 'dart:io';
 import 'package:emoji_picker_2/emoji_picker_2.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:flutter_application_5/Dones/camarascreen.dart';
-import 'package:flutter_application_5/Dones/cameraview.dart';
+import 'package:flutter_application_5/Components/Camera&Video/camarascreen.dart';
+import 'package:flutter_application_5/Components/Camera&Video/cameraview.dart';
+import 'package:flutter_application_5/Constants/firestore_constants.dart';
 import 'package:flutter_application_5/Login/mainlogin.dart';
 import 'package:flutter_application_5/Modals/chat_messages.dart';
 import 'package:flutter_application_5/Providers/chat_provider.dart';
 import 'package:flutter_application_5/Providers/googleauth.dart';
 import 'package:flutter_application_5/Providers/profile_provider.dart';
-import 'package:flutter_application_5/Screens/filedoc.dart';
-import 'package:flutter_application_5/Screens/scanner.dart';
+import 'package:flutter_application_5/Components/Filesshare/filedoc.dart';
+import 'package:flutter_application_5/Components/Scanner/scanner.dart';
 import 'package:flutter_application_5/widgets/common_widgets.dart';
 import 'package:flutter_application_5/widgets/size_constants.dart';
 import 'package:flutter_application_5/widgets/text_field_constants.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:geocoding/geocoding.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
-
-import '../Constants/firestore_constants.dart';
+import '../../Constants/firestore_constants.dart';
 
 class ChatPage extends StatefulWidget {
   final String peerId;
@@ -129,13 +131,6 @@ class _ChatPageState extends State<ChatPage> {
     }
   }
 
-  void getSticker() {
-    focusNode.unfocus();
-    setState(() {
-      isShowSticker = !isShowSticker;
-    });
-  }
-
   Future<bool> onBackPressed() {
     if (isShowSticker) {
       setState(() {
@@ -210,6 +205,53 @@ class _ChatPageState extends State<ChatPage> {
     } else {
       return false;
     }
+  }
+
+  String location = 'Null, Press Button';
+  String Address = 'search';
+  Future<Position> _getGeoLocationPosition() async {
+    bool serviceEnabled;
+    LocationPermission permission;
+    // Test if location services are enabled.
+    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      // Location services are not enabled don't continue
+      // accessing the position and request users of the
+      // App to enable the location services.
+      await Geolocator.openLocationSettings();
+      return Future.error('Location services are disabled.');
+    }
+    permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        // Permissions are denied, next time you could try
+        // requesting permissions again (this is also where
+        // Android's shouldShowRequestPermissionRationale
+        // returned true. According to Android guidelines
+        // your App should show an explanatory UI now.
+        return Future.error('Location permissions are denied');
+      }
+    }
+    if (permission == LocationPermission.deniedForever) {
+      // Permissions are denied forever, handle appropriately.
+      return Future.error(
+          'Location permissions are permanently denied, we cannot request permissions.');
+    }
+    // When we reach here, permissions are granted and we can
+    // continue accessing the position of the device.
+    return await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high);
+  }
+
+  Future<void> GetAddressFromLatLong(Position position) async {
+    List<Placemark> placemarks =
+        await placemarkFromCoordinates(position.latitude, position.longitude);
+    print(placemarks);
+    Placemark place = placemarks[0];
+    Address =
+        '${place.street}, ${place.subLocality}, ${place.locality}, ${place.postalCode}, ${place.country}';
+    setState(() {});
   }
 
   @override
@@ -517,7 +559,7 @@ class _ChatPageState extends State<ChatPage> {
 
   Widget bottomsheet() {
     return Container(
-      height: 170,
+      height: 150,
       width: MediaQuery.of(context).size.width,
       child: Card(
           margin: EdgeInsets.all(16),
@@ -535,9 +577,8 @@ class _ChatPageState extends State<ChatPage> {
                   SizedBox(
                     width: 40,
                   ),
-                  iconCreation(
-                      Icons.scanner, Color.fromARGB(255, 255, 65, 59), "Scan",
-                      () {
+                  iconCreation(Icons.adf_scanner,
+                      Color.fromARGB(255, 255, 65, 59), "Scan", () {
                     Navigator.push(context,
                         MaterialPageRoute(builder: (builder) => Scanner()));
                   }),
@@ -558,6 +599,17 @@ class _ChatPageState extends State<ChatPage> {
                                   onImageSend: uploadImageFile,
                                 )));
                   }),
+                  SizedBox(
+                    width: 40,
+                  ),
+                  iconCreation(Icons.location_history,
+                      Color.fromARGB(255, 48, 117, 42), "Location", () async {
+                    textEditingController.text = '${Address}';
+                    Position position = await _getGeoLocationPosition();
+                    location =
+                        'Lat: ${position.latitude} , Long: ${position.longitude}';
+                    GetAddressFromLatLong(position);
+                  }),
                 ],
               ),
             ]),
@@ -572,7 +624,7 @@ class _ChatPageState extends State<ChatPage> {
         child: Column(
           children: [
             CircleAvatar(
-              radius: 30,
+              radius: 27,
               backgroundColor: color,
               child: Icon(
                 icon,
@@ -585,7 +637,7 @@ class _ChatPageState extends State<ChatPage> {
             ),
             Text(
               text,
-              style: TextStyle(fontSize: 12),
+              style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
             ),
           ],
         ));

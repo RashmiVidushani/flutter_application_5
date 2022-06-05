@@ -1,16 +1,13 @@
 import 'dart:io';
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_application_5/Pages/camarapage.dart';
+import 'package:flutter_application_5/Components/Camera&Video/camarapage.dart';
 import 'package:flutter_application_5/Login/mainlogin.dart';
-import 'package:flutter_application_5/Pages/home.dart';
+import 'package:flutter_application_5/Screens/home.dart';
 import 'package:flutter_application_5/Providers/googleauth.dart';
 import 'package:flutter_application_5/Providers/home_provider.dart';
-import 'package:flutter_application_5/Providers/profile_provider.dart';
-import 'package:flutter_application_5/Screens/mainchatscreen.dart';
+import 'package:flutter_application_5/Components/Chat/mainchatscreen.dart';
 import 'package:flutter_application_5/Screens/profile.dart';
-import 'package:flutter_application_5/test.dart';
 import 'package:flutter_application_5/widgets/size_constants.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:provider/provider.dart';
@@ -32,7 +29,6 @@ class _HomeScreenState extends State<HomeScreen>
   late TabController _controller;
   final GoogleSignIn googleSignIn = GoogleSignIn();
   User? user = FirebaseAuth.instance.currentUser;
-  late ProfileProvider profileProvider;
   late AuthProvider authProvider;
   late String currentUserId;
   late HomeProvider homeProvider;
@@ -121,7 +117,7 @@ class _HomeScreenState extends State<HomeScreen>
     super.initState();
     authProvider = context.read<AuthProvider>();
     homeProvider = context.read<HomeProvider>();
-    profileProvider = context.read<ProfileProvider>();
+
     if (authProvider.getFirebaseUserId()?.isNotEmpty == true) {
       currentUserId = authProvider.getFirebaseUserId()!;
     } else {
