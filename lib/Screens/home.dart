@@ -114,17 +114,6 @@ class _HomeState extends State<Home> {
     );
   }
 
-  /* floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.push(
-              context, MaterialPageRoute(builder: (context) => NoteHome()));
-        },
-        child: const Icon(Icons.note_alt_sharp),
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-      bottomNavigationBar: new BottomAppBar(
-        color: Colors.white,
-      ),*/
   Widget _getFAB() {
     return SpeedDial(
       animatedIcon: AnimatedIcons.menu_close,
